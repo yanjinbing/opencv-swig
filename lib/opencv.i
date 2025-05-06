@@ -8,7 +8,10 @@
  * OpenCV-SWIG Library, including this file, may be copied, modified, propagated, or
  * distributed except according to the terms contained in the LICENSE file.
  */
-
+%module cv
+%{
+    #include <opencv2/opencv.hpp>
+%}
 %include <opencv/mat.i>
 %include <opencv/matx.i>
 %include <opencv/point.i>

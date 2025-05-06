@@ -14,10 +14,7 @@
 %define %cv_size_instantiate(type, type_alias)
     #if !_CV_SIZE_##type##_INSTANTIATED_
         %template(_Size__##type) cv::Size_< type >;
-        %pythoncode
-        %{
-            Size2##type_alias = _Size__##type
-        %}
+
         #define _CV_SIZE_##type##_INSTANTIATED_
     #endif
 %enddef
@@ -32,11 +29,7 @@
 
 %extend cv::Size_
 {
-    %pythoncode
-    {
-        def __iter__(self):
-            return iter((self.width, self.height))
-    }
+
 
     std::string __str__()
     {
@@ -54,8 +47,5 @@
     %cv_size_instantiate(int, i)
     %cv_size_instantiate(float, f)
     %cv_size_instantiate(double, d)
-    %pythoncode
-    {
-        Size = Size2i
-    }
+
 %enddef

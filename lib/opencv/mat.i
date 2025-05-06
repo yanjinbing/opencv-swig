@@ -53,10 +53,7 @@ namespace cv
         {
             %template(_Mat__##type) Mat_< type >;
         }
-        %pythoncode
-        %{
-            Mat##type_alias = _Mat__##type
-        %}
+
         #define _CV_MAT__##type##_INSTANTIATED_
     #endif
 %enddef
@@ -139,67 +136,7 @@ namespace cv
         return new cv::Mat(rows, cols, type, (void*)data);
     }
 
-    %pythoncode
-    %{
-        def _typestr(self):
-            typestr = _depthToDtype(self.depth())
-            if typestr[-1] == '1':
-                typestr = '|' + typestr
-            else:
-                typestr = _cv_numpy_endianess + typestr
-
-            return typestr
-
-
-        @classmethod
-        def __get_channels(cls, array):
-            if len(array.shape) == 3:
-                n_channel = array.shape[2]
-                if n_channel == 1:
-                    raise ValueError("{} expects an one channel numpy ndarray be 2-dimensional.".format(cls))
-            elif len(array.shape) == 2:
-                n_channel = 1
-            else:
-                raise ValueError("{} supports only 2 or 3-dimensional numpy ndarray.".format(cls))
-
-            return n_channel
-
-
-        def __getattribute__(self, name):
-            if name == "__array_interface__":
-                n_channels = self.channels()
-                if n_channels == 1:
-                    shape = (self.rows, self.cols)
-                else:
-                    shape = (self.rows, self.cols, n_channels)
-
-                return {"shape": shape,
-                        "typestr": self._typestr(),
-                        "data": (int(self.data), False)}
-
-            else:
-                return object.__getattribute__(self, name)
-
-        @classmethod
-        def from_array(cls, array):
-            import numpy as np
-            array = np.asarray(array)
-
-            dtype = array.__array_interface__['typestr']
-            dtype = dtype[1:]
-
-            n_channel = cls.__get_channels(array)
-
-            new_mat = Mat(array.shape[0],
-                          array.shape[1],
-                          _toCvType(dtype, n_channel),
-                          array.__array_interface__['data'][0])
-
-            # Holds an internal reference to keep the image buffer alive
-            new_mat._array = array
-
-            return new_mat
-    %}
+    
 
     std::string __str__()
     {
@@ -216,43 +153,7 @@ namespace cv
         return new $parentclassname(rows, cols, ($parentclassname::value_type*)data);
     }
 
-    %pythoncode
-    %{
-        @classmethod
-        def __check_channels_compatibility(cls, array):
-            obj = cls()
-            n_channel = obj.channels()
-
-            if n_channel == 1:
-                if len(array.shape) != 2:
-                    raise ValueError("{} expects a 2-dimensional numpy ndarray.".format(cls))
-            else:
-                if len(array.shape) != 3:
-                    raise ValueError("{} expects a 3-dimensional numpy ndarray.".format(cls))
-                elif array.shape[2] != n_channel:
-                    raise ValueError("{} expects the last ndarray dimension to have a size of {}".format(cls, n_channel))
-
-        @classmethod
-        def from_array(cls, array):
-            import numpy as np
-            array = np.asarray(array)
-
-            if cls()._typestr() != array.__array_interface__['typestr']:
-                raise ValueError("{} expects a {} datatype.".format(cls, cls()._typestr()))
-
-            cls.__check_channels_compatibility(array)
-
-            new_mat = cls(_mat__np_array_constructor(),
-                          array.shape[0],
-                          array.shape[1],
-                          array.__array_interface__['data'][0])
-
-            # Holds an internal reference to keep the image buffer alive
-            new_mat._array = array
-
-            return new_mat
-    %}
-
+  
     std::string __str__()
     {
         std::ostringstream s;

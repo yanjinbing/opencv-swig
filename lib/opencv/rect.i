@@ -15,10 +15,7 @@
 %define %cv_rect_instantiate(type, type_alias)
     #if !_CV_RECT_##type##_INSTANTIATED_
         %template(_Rect__##type) cv::Rect_< type >;
-        %pythoncode
-        %{
-            Rect2##type_alias = _Rect__##type
-        %}
+
         #define _CV_RECT_##type##_INSTANTIATED_
     #endif
 %enddef
@@ -33,11 +30,7 @@
 
 %extend cv::Rect_
 {
-    %pythoncode
-    {
-        def __iter__(self):
-            return iter((self.x, self.y, self.width, self.height))
-    }
+
 
     std::string __str__()
     {
@@ -55,8 +48,5 @@
     %cv_rect_instantiate(int, i)
     %cv_rect_instantiate(float, f)
     %cv_rect_instantiate(double, d)
-    %pythoncode
-    {
-        Rect = Rect2i
-    }
+
 %enddef

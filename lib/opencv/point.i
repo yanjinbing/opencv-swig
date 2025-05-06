@@ -18,10 +18,7 @@
 %define %cv_point_instantiate(type, type_alias)
     #if !_CV_POINT_##type##_INSTANTIATED_
         %template(_Point__##type) cv::Point_< type >;
-        %pythoncode
-        %{
-            Point2##type_alias = _Point__##type
-        %}
+
         #define _CV_POINT_##type##_INSTANTIATED_
     #endif
 %enddef
@@ -34,11 +31,7 @@
 
 %extend cv::Point_
 {
-    %pythoncode
-    {
-        def __iter__(self):
-            return iter((self.x, self.y))
-    }
+
 
     std::string __str__()
     {
@@ -56,8 +49,5 @@
     %cv_point_instantiate(int, i)
     %cv_point_instantiate(float, f)
     %cv_point_instantiate(double, d)
-    %pythoncode
-    {
-        Point = Point2i
-    }
+
 %enddef

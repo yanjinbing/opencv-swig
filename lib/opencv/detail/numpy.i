@@ -9,17 +9,7 @@
  * distributed except according to the terms contained in the LICENSE file.
  */
 
-%pythoncode
-{
-    import sys as _sys
-    if _sys.byteorder == 'little':
-        _cv_numpy_endianess = '<'
-    else:
-        _cv_numpy_endianess = '>'
 
-    _cv_numpy_typestr_map = {}
-    _cv_numpy_bla = {}
-}
 
 %inline
 %{
@@ -39,13 +29,7 @@
         {
             %template(_cv_numpy_sizeof_##type) _SizeOf< type >;
         }
-        %pythoncode
-        {
-            if _cv_numpy_sizeof_##type##.value == 1:
-                _cv_numpy_typestr_map[#type] = "|" + #np_basic_type + "1"
-            else:
-                _cv_numpy_typestr_map[#type] = _cv_numpy_endianess  + #np_basic_type + str(_cv_numpy_sizeof_##type##.value)
-        }
+
         #define _CV_NUMPY_##type##_
     #endif
 %enddef

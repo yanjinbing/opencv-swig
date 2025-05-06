@@ -31,10 +31,7 @@
     #if !_CV_SCALAR_##type##_INSTANTIATED_
         %cv_vec_instantiate(type, 4, type_alias, np_basic_type)
         %template(_Scalar__##type) cv::Scalar_< type >;
-        %pythoncode
-        %{
-            Scalar4##type_alias = _Scalar__##type
-        %}
+
         #define _CV_SCALAR_##type##_INSTANTIATED_
     #endif
 %enddef
@@ -49,20 +46,7 @@
 
 %extend cv::Scalar_
 {
-    %pythoncode
-    {
-        def __iter__(self):
-            return iter((self(0), self(1), self(2), self(3)))
-
-        def __getitem__(self, key):
-            if not isinstance(key, int):
-                raise TypeError
-
-            if key >= 4:
-                raise IndexError
-
-            return self(key)
-     }
+   
 
     std::string __str__()
     {
@@ -79,8 +63,5 @@
  */
 %define %cv_scalar_instantiate_defaults
     %cv_scalar_instantiate(double, d, f)
-    %pythoncode
-    {
-        Scalar = Scalar4d
-    }
+
 %enddef

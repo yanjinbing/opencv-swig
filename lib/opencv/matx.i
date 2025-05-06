@@ -14,10 +14,7 @@
 %include <std_string.i>
 %include <std_vector.i>
 
-%pythoncode
-{
-    _array_map = {}
-}
+
 
 %include <opencv/detail/matx.i>
 
@@ -45,19 +42,13 @@
 
     #if !_ARRAY_##type##_INSTANTIATED_
         %template(_##type##Array) std::vector< type >;
-        %pythoncode
-        {
-            _array_map[#type] = _##type##Array
-        }
+ 
         #define _ARRAY_##type##_INSTANTIATED_
     #endif
 
     #if !_CV_MATX_##type##_##d1##_##d2##_INSTANTIATED_
         %template(_Matx_##type##_##d1##_##d2) cv::Matx< type, d1, d2>;
-        %pythoncode
-        %{
-            Matx##d1##d2##type_alias = _Matx_##type##_##d1##_##d2
-        %}
+  
         #define _CV_MATX_##type##_##d1##_##d2##_INSTANTIATED_
     #endif
 %enddef
@@ -153,67 +144,15 @@
 
 %extend cv::Matx
 {
-    %pythoncode
-     {
-         import re
-         _re_pattern = re.compile("^_Matx_(?P<value_type>[a-zA-Z_][a-zA-Z0-9_]*)_(?P<rows>[0-9]+)_(?P<cols>[0-9]+)$")
-     }
+
 
     Matx(std::vector<value_type> arg)
     {
         return Factory< $parentclassname >::construct(arg);
     }
 
-    %pythonprepend Matx(std::vector<value_type> arg)
-    {
-        ma = self._re_pattern.match(self.__class__.__name__)
-        value_type = ma.group("value_type")
-        rows = int(ma.group("rows"))
-        cols = int(ma.group("cols"))
 
-        array = _array_map[value_type](rows*cols)
-        for i in range(len(args)):
-            array[i] = args[i]
-
-        args = [array]
-    }
-
-    %pythoncode
-    {
-        def __getattribute__(self, name):
-            if name == "__array_interface__":
-                ma = self._re_pattern.match(self.__class__.__name__)
-                value_type = ma.group("value_type")
-                rows = int(ma.group("rows"))
-                cols = int(ma.group("cols"))
-                return {"shape": (rows, cols),
-                        "typestr": _cv_numpy_typestr_map[value_type],
-                        "data": (int(self.val), False)}
-            else:
-                return object.__getattribute__(self, name)
-
-
-        def __getitem__(self, key):
-            ma = self._re_pattern.match(self.__class__.__name__)
-            rows = int(ma.group("rows"))
-            cols = int(ma.group("cols"))
-
-            if isinstance(key, int):
-                if rows != 1 and cols != 1:
-                    raise IndexError
-                i = key
-                j = 0
-            elif isinstance(key, tuple) and len(key) == 2:
-                i = key[0]
-                j = key[1]
-            else:
-                raise TypeError
-
-            if i >= rows or j >= cols:
-                raise IndexError
-
-            return self(i, j)
-    }
+   
 
     std::string __str__()
     {
